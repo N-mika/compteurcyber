@@ -29,6 +29,7 @@
     }
   },
   "dependencies": {
+    "@lucide/vue": "^1.23.0",
     "@tailwindcss/vite": "^4.3.1",
     "png-to-ico": "^3.0.1",
     "tailwindcss": "^4.3.1",

@@ -1,84 +1,71 @@
 <template>
   <!-- OVERLAY -->
-  <div 
-    v-if="showModale" 
-    @click="$emit('close')" 
-    class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
-  >
+  <div v-if="showModale" @click="$emit('close')"
+    class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
 
     <!-- MODAL -->
-    <form 
-      @click.stop 
-      @submit.prevent="onSubmit"
-      class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-5 animate-scaleIn"
-    >
+    <form @click.stop @submit.prevent="onSubmit"
+      class="w-full max-w-md bg-white rounded-2xl shadow-xl flex flex-col animate-scaleIn">
 
       <!-- HEADER -->
-      <div class="flex justify-between items-center">
-        <h2 class="text-xl font-bold text-gray-800">
+      <div class="flex justify-between rounded-tl-lg rounded-tr-lg px-2 py-4 bg-primary text-white items-center">
+        <h2 class="text-xl font-bold ">
           {{ mode === 'add' ? 'Ajouter un client' : 'Modifier client' }}
         </h2>
 
-        <button 
-          type="button" 
-          @click="$emit('close')" 
-          class="text-gray-400 hover:text-red-500 text-lg"
-        >
-          ✕
+        <button type="button" @click="$emit('close')" class="scale-90 hover:scale-100 hover:animate-scaleIn text-lg">
+          <X :size="22" />
         </button>
       </div>
 
-      <!-- INPUT NOM -->
-      <div class="flex flex-col gap-1">
-        <label class="text-sm text-gray-600">Nom</label>
-        <input 
-          type="text" 
-          placeholder="Nom du client"
-          v-model="localData.name"
-          class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-      </div>
-
-      <!-- INPUT TEMPS -->
-      <div class="flex flex-col gap-1">
-        <label class="text-sm text-gray-600">Temps de connexion</label>
-        <input 
-          type="number" 
-          placeholder="Durée"
-          v-model="localData.time"
-          class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-      </div>
-
-      <!-- SELECT -->
-      <div class="flex flex-col gap-1">
-        <label class="text-sm text-gray-600">Unité</label>
-        <select 
-          v-model="localUnit" 
-          class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          <option value="minute">Minute</option>
-          <option value="heure">Heure</option>
-        </select>
-      </div>
-
-      <!-- ACTIONS -->
-      <div class="flex justify-end gap-2 pt-2">
-
-        <button 
-          type="button" 
-          @click="$emit('close')"
-          class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-        >
-          Annuler
-        </button>
-
-        <button 
-          class="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 transition"
-        >
-          {{ mode === 'add' ? 'Ajouter' : 'Modifier' }}
-        </button>
-
+      <div class="flex flex-col gap-4 p-4">
+        <!-- INPUT NOM -->
+        <div class="flex flex-col gap-1">
+          <label class="text-sm text-gray-600">Nom</label>
+          <input type="text" placeholder="Nom du client" v-model="localData.name"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+  
+        <!-- INPUT TEMPS -->
+        <div class="flex flex-col gap-1">
+          <label class="text-sm text-gray-600">Temps de connexion</label>
+          <input type="number" placeholder="Durée" v-model="localData.time"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+  
+        <!-- SELECT -->
+        <div class="flex flex-col gap-1">
+          <label class="text-sm text-gray-600">Unité</label>
+          <select v-model="localUnit"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="minute">Minute</option>
+            <option value="heure">Heure</option>
+          </select>
+        </div>
+  
+        <!-- ACTIONS -->
+        <div class="flex justify-end gap-2 pt-2">
+  
+          <button type="button" @click="$emit('close')"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition">
+            <X :size="18" />
+            Annuler
+          </button>
+  
+          <button
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-primary hover:bg-primary/80 transition">
+            <template v-if="mode === 'add'">
+              <Plus :size="18" />
+              Ajouter
+            </template>
+  
+            <template v-else>
+              <SquarePen :size="18" />
+              Modifier
+            </template>
+          </button>
+  
+        </div>
       </div>
 
     </form>
@@ -86,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+import { Plus, SquarePen, X } from '@lucide/vue';
 import { ref, watch } from 'vue';
 
 const props = defineProps<{

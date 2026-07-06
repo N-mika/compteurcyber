@@ -1,7 +1,8 @@
 <template>
-  <div class="h-screen flex relative flex-col gap-4 px-2.5">
-    <div class="bg-gray-900 text-white p-4 rounded-lg flex justify-between items-center">
-      <h1 class="text-xl font-bold">Cyber Café Manager</h1>
+  <div class="h-screen flex relative flex-col gap-4">
+    <!-- Header -->
+    <div class="bg-primary text-white p-4 rounded-tl-lg rounded-tr-lg flex justify-between items-center">
+      <h1 class="text-xl font-bold">Cyber WaZaux Manager</h1>
       <div class="text-lg">
         Clients actifs :
         <span class="font-bold text-green-400">
@@ -9,49 +10,88 @@
         </span>
       </div>
     </div>
-    <input type="text" name="" id=""
-      class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400  "
-      v-model="search">
-    <div
-      class="grid grid-cols-1 max-h-[80vh] dashboard overflow-auto  px-4 py-2 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-600 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
-      <Card v-for="(connexion, index) in allConnexionFiltred" :key="index" :connexion="connexion" :index="index"
-        @onDelete="onDelete" @onEdit="onEdit" @onPause="onPause" @onPlusTime="onPlusTime" @onStart="onStart"/>
-    </div>
-    <div v-if="showAddTimeModal" class="fixed inset-0 bg-black/60 flex items-center justify-center">
+    <div class="flex flex-col gap-4 px-4 flex-1">
+      <!-- Controle -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-gray-800 items-end">
 
-      <div class="bg-white p-4 rounded flex flex-col gap-3 w-80">
+        <!-- SEARCH -->
+        <div class="flex gap-2 items-center w-full">
+          <label class="whitespace-nowrap">Rechercher :</label>
 
-        <h2 class="text-black text-lg font-bold">Ajouter du temps</h2>
+          <input type="text" v-model="search" placeholder="Rechercher un client..."
+            class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+        </div>
 
-        <input type="number" v-model="tempTime" placeholder="Durée" class="border p-2 text-black" />
+        <!-- PRICE -->
+        <div class="flex gap-2 items-center w-full">
+          <label class="whitespace-nowrap">Prix/min :</label>
 
-        <select v-model="tempUnit" class="border p-2 text-black">
-          <option value="minute">Minute</option>
-          <option value="heure">Heure</option>
-        </select>
+          <input type="number" v-model="price" placeholder="Prix par minute"
+            class="w-full md:w-32 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+        </div>
 
-        <div class="flex gap-2 justify-end">
-          <button @click="closeAddTimeModal" class="px-3 py-1 bg-gray-400">
-            Annuler
+        <!-- ACTIONS -->
+        <div class="flex flex-wrap gap-2 md:justify-end lg:justify-end w-full">
+
+          <button @click="onShowModaleConfirmeModal()"
+            class="flex items-center gap-2 px-4 py-2 font-bold bg-red-600 text-white rounded-xl hover:bg-red-700 transition">
+            <Trash2 />
+            <span class="hidden sm:inline">Tous effacer</span>
           </button>
 
-          <button @click="confirmAddTime" class="px-3 py-1 bg-blue-500 text-white">
-            Ajouter
+          <button @click="arreterAnnonce"
+            class="flex items-center gap-2 px-4 py-2 font-bold bg-red-600 text-white rounded-xl hover:bg-red-700 transition">
+            <VolumeX />
+            <span class="hidden sm:inline">Arrêter</span>
           </button>
+
+          <button @click="onShowModale('add')"
+            class="flex items-center gap-2 px-4 py-2 font-bold bg-primary text-white rounded-xl hover:bg-primary/80 transition">
+            <PlusCircle />
+            <span class="hidden sm:inline">Ajouter</span>
+          </button>
+
         </div>
 
       </div>
+      <div
+        class="grid grid-cols-1 h-[65vh] md:h-[80vh] dashboard overflow-auto  px-4 py-2 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-600 rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+        <Card v-for="(connexion, index) in allConnexionFiltred" :key="index" :price="price" :connexion="connexion"
+          :index="index" @onDelete="onDelete" @onEdit="onEdit" @onPause="onPause" @onPlusTime="onPlusTime"
+          @onStart="onStart" />
+      </div>
+      <div v-if="showAddTimeModal" class="fixed inset-0 bg-black/60 flex items-center justify-center">
 
+        <div class="bg-white p-4 rounded flex flex-col gap-3 w-80">
+
+          <h2 class="text-black text-lg font-bold">Ajouter du temps</h2>
+
+          <input type="number" v-model="tempTime" placeholder="Durée" class="border p-2 text-black" />
+
+          <select v-model="tempUnit" class="border p-2 text-black">
+            <option value="minute">Minute</option>
+            <option value="heure">Heure</option>
+          </select>
+
+          <div class="flex gap-2 justify-end">
+            <button @click="closeAddTimeModal" class="px-3 py-1 bg-gray-400">
+              Annuler
+            </button>
+
+            <button @click="confirmAddTime" class="px-3 py-1 bg-blue-500 text-white">
+              Ajouter
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+      <Forme :showModale="showModale" @close="onClose" :modelValue="connextion" :unit="unit" :mode="modeModale"
+        @submit="(data) => modeModale === 'add' ? onAdd(data) : onUpdate(data)" />
+      <ConfirmeModal v-model="showDeleteDialog" title="Suppression"
+        message="Voulez-vous vraiment supprimer tous les clients ? Cette action est irréversible."
+        @confirm="onDeleteAll" />
     </div>
-    <div class=" absolute right-2 bottom-2 flex gap-2">
-      <button @click="onShowModale('add')"
-        class="px-5 font-bold rounded-xl py-2.5 bg-primary text-white">Ajouter</button>
-      <button @click="arreterAnnonce" class="px-5 py-2.5 font-bold bg-red-600 text-white rounded-xl">
-        🔊 Stop annonce
-      </button>
-    </div>
-    <Forme :showModale="showModale" @close="onClose" :modelValue="connextion" :unit="unit" :mode="modeModale"
-      @submit="(data) => modeModale === 'add' ? onAdd(data) : onUpdate(data)" />
   </div>
 </template>
 <script setup lang="ts">
@@ -59,30 +99,16 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import Forme, { type FormPayload } from './components/Forme.vue';
 import { ajouterAnnonce, arreterAnnonce } from './fonction.ts';
 import Card from './components/Card.vue';
+import { PlusCircle, Trash2, VolumeX } from '@lucide/vue';
+import ConfirmeModal from './components/ConfirmeModal.vue';
 
 export type Connextion = {
   name: string,
-  time: number,
-  isRunning: boolean
+  time: number, // s
+  isRunning: boolean,
+  totalTime: number,
+  // price: number
 }
-
-const search = ref<string>('');
-
-const normalize = (str: string) =>
-  str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, ""); // enlève les accents
-
-const allConnexionFiltred = computed(() => {
-  const query = normalize(search.value.trim());
-
-  if (!query) return allConnexion.value;
-
-  return allConnexion.value.filter(({ name }) =>
-    normalize(name).includes(query)
-  );
-});
 const showAddTimeModal = ref(false);
 const selectedIndex = ref<number | null>(null);
 const showModale = ref<boolean>(false);
@@ -93,7 +119,28 @@ const tempTime = ref(0);
 const tempUnit = ref<'minute' | 'heure'>('minute');
 const editIndex = ref<number | null>(null);
 const allConnexion = ref<Connextion[]>([]);
-const connextion = ref({ name: '', time: 0 });
+const connextion = ref<Connextion>({ name: '', time: 0, isRunning: false, totalTime: 0 });
+const price = ref<number>(0);
+const search = ref<string>('');
+const showDeleteDialog = ref<boolean>(false);
+
+const normalize = (str: string) =>
+  str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, ""); // enlève les accents
+allConnexion.value = [
+  // { isRunning: false, name: "Mika", time: 60, totalTime: 60 },
+]
+const allConnexionFiltred = computed(() => {
+  const query = normalize(search.value.trim());
+
+  if (!query) return allConnexion.value;
+
+  return allConnexion.value.filter(({ name }) =>
+    normalize(name).includes(query)
+  );
+});
 
 const onAdd = (data: FormPayload) => {
   let seconds = data.unit === 'minute'
@@ -103,7 +150,9 @@ const onAdd = (data: FormPayload) => {
   allConnexion.value.push({
     name: data.name,
     time: seconds,
-    isRunning: false
+    isRunning: false,
+    totalTime: seconds,
+    // price: data.time * price.value
   });
 
   showModale.value = false;
@@ -120,7 +169,9 @@ const onUpdate = (data: FormPayload) => {
   allConnexion.value[editIndex.value] = {
     ...allConnexion.value[editIndex.value],
     name: data.name,
-    time: seconds
+    time: seconds,
+    totalTime: seconds,
+    // price: allConnexion.value[editIndex.value].price + (seconds / 60) * price.value
   };
 
   showModale.value = false;
@@ -132,8 +183,11 @@ const onEdit = (index: number) => {
   showModale.value = true;
 
   connextion.value = {
+    ...allConnexion.value[index],
     name: allConnexion.value[index].name,
-    time: Math.floor(allConnexion.value[index].time / 60)
+    totalTime: allConnexion.value[index].totalTime + allConnexion.value[index].time,
+    time: Math.floor(allConnexion.value[index].time / 60),
+    // price: allConnexion.value[index].price + (allConnexion.value[index].time / 60) * price.value
   };
 
   unit.value = 'minute';
@@ -158,7 +212,8 @@ const confirmAddTime = () => {
     : tempTime.value * 3600;
 
   allConnexion.value[selectedIndex.value].time += seconds;
-
+  allConnexion.value[selectedIndex.value].totalTime += seconds;
+  // allConnexion.value[selectedIndex.value].price += (seconds / 60) * price.value;
   closeAddTimeModal();
 };
 const closeAddTimeModal = () => {
@@ -166,7 +221,13 @@ const closeAddTimeModal = () => {
   selectedIndex.value = null;
   tempTime.value = 0;
 };
-
+const onShowModaleConfirmeModal = () => {
+  showDeleteDialog.value = true
+}
+const onDeleteAll = () => {
+  allConnexion.value = []
+  showDeleteDialog.value = false
+}
 const onPause = (index: number) => {
   allConnexion.value[index].isRunning = false;
 };
@@ -205,7 +266,7 @@ onUnmounted(() => {
 });
 
 const resetForm = () => {
-  connextion.value = { name: '', time: 0 };
+  connextion.value = { name: '', time: 0, isRunning: false, totalTime: 0 };
 };
 
 const activeClients = computed(() => {

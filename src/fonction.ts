@@ -57,7 +57,11 @@ export const formatTime = (time: number) => {
   const m = Math.floor((time % 3600) / 60);
   const s = time % 60;
 
-  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  return `${pad(h)}h ${pad(m)}m ${pad(s)}s`;
 };
+export const formatName = (name: string) => {
+  if (!name) return ''
+  return name.length > 10 ? name.slice(0, 10) + '...' : name
+}
 
 export const pad = (n: number) => n.toString().padStart(2, '0');
